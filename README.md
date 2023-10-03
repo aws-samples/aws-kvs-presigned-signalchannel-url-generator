@@ -73,9 +73,9 @@ To follow through this repository, you will need an <a href="https://console.aws
 Be sure to remove the resources created in this repository to avoid charges. Run the following commands to delete these resources:
 1. 
 2. 
-3. aws kinesisvideo delete-signaling-channel --channel-arn "REPLACE_ME_WITH_ARN_FOR_aws_kvs_test_channel"
+3. ```aws kinesisvideo delete-signaling-channel --channel-arn "REPLACE_ME_WITH_ARN_FOR_aws_kvs_test_channel"```
 4. 
-5. aws dynamodb delete-table --table-name Users
+5. ```aws dynamodb delete-table --table-name Users```
 6. 
 
 ## Security
