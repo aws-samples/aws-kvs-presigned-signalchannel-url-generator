@@ -11,7 +11,7 @@ For the demonstration in this repository, you will send an HTTPS request to Amaz
    1. If the query response shows that the email exists and has access to the cameraName, the request proceeds. If not, a 403 forbidden response is sent back to the client.
 3. Amazon API Gateway will call an AWS Lambda function that will generate the pre-signed signaling channel URL using the value of the channelName query parameter provided in the request
 4. The AWS Lambda function will respond with the pre-signed signaling channel URL to the client as JSON
-5. The client will connect to the pre-signed signaling channel URL as a WebSocket based connection 
+5. The client can then connect to the pre-signed signaling channel URL as a WebSocket based connection 
 
 The illustration below details what this solution will look like once fully implemented.
 
@@ -24,12 +24,59 @@ To follow through this repository, you will need an <a href="https://console.aws
 
 
 ### Step 1: Create the AWS Lambda Authorizer function (AWS CLI)
-1. Create your Amazon SNS topic by issuing the <b>create-topic</b> command
+
+
+### Step 2: Create the AWS Lambda pre-signed signaling channel URL function (AWS CLI)
+
+### Step 3: Create the Amazon KVS signaling channel (AWS CLI)
+1. Create your Amazon KVS signaling channel by issuing the <b>create-signaling-channel</b> command
     ```   
-    aws sns create-topic --name "aws_iot_core_logging_levels_demo_topic"
+    aws kinesisvideo create-signaling-channel --channel-name "aws_kvs_test_channel"
     ```
+
+### Step 4: Create the Amazon API Gateway HTTP API (AWS CLI)
+
+### Step 5: Create the Amazon DynamoDB table (AWS CLI)
+1. Create your Amazon DynamoDB table by issuing the <b>create-table</b> command
+    ```   
+    aws dynamodb create-table \
+    --table-name Users \
+    --attribute-definitions AttributeName=email,AttributeType=S \
+    --key-schema AttributeName=email,KeyType=HASH \
+    --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+    ```
+2. Put a user record into your table by issuing the <b>put-item</b> command
+    ```   
+    aws dynamodb put-item \
+    --table-name Users \
+    --item '{
+        "email": {"S": "test@myemail.com"},
+        "Cameras": {"L": [ {"S": "Garage Camera One"} , {"S": "Garage Camera Two"}]}
+    }' 
+    ```
+
+
+### Step 6: Test the API Gateway HTTP API (Bash)
+
+1. Test your HTTP API by issuing the following <b>Bash</b> commands
+    ```
+    HTTP_API_GATEWAY_ENDPOINT=REPLACE_ME_WITH_HTTP_API_ENDPOINT
+    curl $HTTP_API_GATEWAY_ENDPOINT -X GET -H 'authorization: secretToken' -H 'email:test@myemail.com' -H 'cameraName:Garage Camera One'
+    ```
+
+    The output from these commands should look similar to the following:
+    ```
+    {"signedURL":"WSS_PRESIGNED_SIGNALING_CHANNEL_URL"}
+    ```
+
 ## Cleaning up
 Be sure to remove the resources created in this repository to avoid charges. Run the following commands to delete these resources:
+1. 
+2. 
+3. aws kinesisvideo delete-signaling-channel --channel-arn "REPLACE_ME_WITH_ARN_FOR_aws_kvs_test_channel"
+4. 
+5. aws dynamodb delete-table --table-name Users
+6. 
 
 ## Security
 
