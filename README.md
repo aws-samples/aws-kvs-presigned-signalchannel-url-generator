@@ -24,7 +24,59 @@ To follow through this repository, you will need an <a href="https://console.aws
 
 
 ### Step 1: Create the AWS Lambda Authorizer function (AWS CLI)
+1. Create the IAM execution role for the Lambda function by issuing the <b>create-role</b> command
+    ```   
+    aws iam create-role --role-name "lambda-kvs_sigv4_URL_generator_custom_authorizer-role" \
+    --assume-role-policy-document '{
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {
+                    "Service": "lambda.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }'
+    ```
+2. Create the policy document for the role’s permissions, run the command below to create the policy document
 
+    ```
+    echo '{
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:*",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+            }
+            ]
+        }' > lambda_customauthorizer_policy.json
+    ```
+    <b>NOTE)</b> This IAM policy is to be use for development purposes only. We recommend following the best practice of least privilege with your IAM policy. You should consider scoping this down if deploying into a production account. 
+
+3. Attach the policy to the role by issuing the <b>put-role-policy</b> command
+
+    ```
+    aws iam put-role-policy \
+    --role-name "lambda-kvs_sigv4_URL_generator_custom_authorizer-role" \
+    --policy-name "lambda-kvs_sigv4_URL_generator_custom_authorizer-policy" \
+    --policy-document file://lambda_customauthorizer_policy.json
+    ```
+
+4. Create the Lambda function by issuing the <b>create-function</b> command
+
+    ```
+    aws lambda create-function --function-name kvs_sigv4_URL_generator_custom_authorizer \
+    --zip-file fileb://lambda_functions/kvs_sigv4_URL_generator_custom_authorizer.zip --handler index.handler --runtime nodejs18.x \
+    --role arn:aws:iam::REPLACE_ME_WITH_AWS_ACCOUNT_ID:role/lambda-kvs_sigv4_URL_generator_custom_authorizer-role
+    ```
 
 ### Step 2: Create the AWS Lambda pre-signed signaling channel URL function (AWS CLI)
 
@@ -56,7 +108,7 @@ To follow through this repository, you will need an <a href="https://console.aws
     ```
 
 
-### Step 6: Test the API Gateway HTTP API (Bash)
+### Step 6: Test the API Gateway HTTP API
 
 1. Test your HTTP API by issuing the following <b>Bash</b> commands
     ```
@@ -71,12 +123,11 @@ To follow through this repository, you will need an <a href="https://console.aws
 
 ## Cleaning up
 Be sure to remove the resources created in this repository to avoid charges. Run the following commands to delete these resources:
-1. 
-2. 
-3. ```aws kinesisvideo delete-signaling-channel --channel-arn "REPLACE_ME_WITH_ARN_FOR_aws_kvs_test_channel"```
-4. 
+1. ```aws iam delete-role-policy --role-name "lambda-kvs_sigv4_URL_generator_custom_authorizer-role" --policy-name "lambda-kvs_sigv4_URL_generator_custom_authorizer-policy"```
+2. ```rm lambda_customauthorizer_policy.json```
+3. ```aws iam delete-role --role-name "lambda-kvs_sigv4_URL_generator_custom_authorizer-role"```
+4. ```aws kinesisvideo delete-signaling-channel --channel-arn "REPLACE_ME_WITH_ARN_FOR_aws_kvs_test_channel"```
 5. ```aws dynamodb delete-table --table-name Users```
-6. 
 
 ## Security
 
