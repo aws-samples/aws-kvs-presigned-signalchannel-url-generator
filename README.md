@@ -149,7 +149,7 @@ To follow through this repository, you will need an <a href="https://console.aws
 2. Set your Amazon API Gateway HTTP API's Lambda authorizer by issuing the <b>create-authorizer</b> and <b>update-route</b> commands
     ```   
     aws apigatewayv2 create-authorizer \
-    --api-id API_ID \
+    --api-id <REPLACE_ME_WITHAPI_ID> \
     --authorizer-type REQUEST \
     --identity-source '$request.header.Authorization' \
     --name lambda-authorizer \
