@@ -149,7 +149,7 @@ To follow through this repository, you will need an <a href="https://console.aws
 2. Set your Amazon API Gateway HTTP API's Lambda authorizer by issuing the <b>create-authorizer</b> and <b>update-route</b> commands
     ```   
     aws apigatewayv2 create-authorizer \
-    --api-id <REPLACE_ME_WITHAPI_ID> \
+    --api-id <REPLACE_ME_WITH_API_ID> \
     --authorizer-type REQUEST \
     --identity-source '$request.header.Authorization' \
     --name lambda-authorizer \
@@ -172,7 +172,7 @@ To follow through this repository, you will need an <a href="https://console.aws
     --action lambda:InvokeFunction \
     --function-name "kvs_sigv4_URL_generator" \
     --principal apigateway.amazonaws.com \
-    --source-arn 'arn:aws:execute-api:<REPLACE_ME_WITH_AWS_REGION>:<REPLACE_ME_WITH_AWS_ACCOUNTID:API_ID>/*/$default'
+    --source-arn 'arn:aws:execute-api:<REPLACE_ME_WITH_AWS_REGION>:<REPLACE_ME_WITH_AWS_ACCOUNTID>:<REPLACE_ME_WITH_API_ID>/*/$default'
 
     aws lambda add-permission \
     --function-name kvs_sigv4_URL_generator_custom_authorizer \
